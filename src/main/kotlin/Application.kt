@@ -1,5 +1,10 @@
 package com
 
+import com.infrastructure.configureDatabases
+import com.webApi.configureHTTP
+import com.webApi.configureMonitoring
+import com.webApi.configureRouting
+import com.webApi.configureSerialization
 import io.ktor.server.application.*
 
 fun main(args: Array<String>) {
