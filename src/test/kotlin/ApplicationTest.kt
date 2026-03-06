@@ -20,15 +20,4 @@ class ApplicationTest {
         }
     }
 
-    @Test
-    fun shouldFail() = testApplication {
-        application {
-            module()
-        }
-        client.get("/").apply {
-            assertEquals(HttpStatusCode.OK, status)
-            assertEquals("WRONG", body())
-        }
-    }
-
 }
