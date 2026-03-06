@@ -1,4 +1,4 @@
-package com
+package com.infrastructure
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
