@@ -30,7 +30,6 @@ class ProjectService(database: Database) {
 
     suspend fun create(project: Project): UUID = dbQuery {
         Projects.insert {
-
             it[name] = project.name
             it[rating] = project.rating
         }[Projects.id]

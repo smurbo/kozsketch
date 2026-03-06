@@ -14,13 +14,13 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    install(ContentNegotiation) {
+        json()
+    }
+
     configureSerialization()
     configureDatabases()
     configureMonitoring()
     configureHTTP()
     configureRouting()
-
-    install(ContentNegotiation) {
-        json()
-    }
 }
