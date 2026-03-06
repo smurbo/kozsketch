@@ -27,7 +27,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
-    implementation("com.h2database:h2:$h2_version")
+    implementation("org.xerial:sqlite-jdbc:3.42.0.0")
     implementation("io.ktor:ktor-server-call-logging")
     implementation("org.postgresql:postgresql:$postgres_version")
     implementation("io.ktor:ktor-server-swagger")
