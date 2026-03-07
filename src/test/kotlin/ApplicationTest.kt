@@ -22,7 +22,7 @@ class ApplicationTest {
     }
 
     @Test
-    fun shouldCreateProject_ThenShouldGetProject() = testApplication {
+    fun shouldCreateProject_ProjectShouldBeCreated() = testApplication {
         createEnvironment()
 
         val client = createClient() {
@@ -31,15 +31,15 @@ class ApplicationTest {
             }
         }
 
-        val response = client.post("/projects") {
+        val postResponse = client.post("/projects") {
             contentType(ContentType.Application.Json)
             setBody(Project("TestProject", "NotSketch"))
         }
 
-        assertEquals(HttpStatusCode.Created, response.status)
-        assertNotNull(response.body())
+        assertEquals(HttpStatusCode.Created, postResponse.status)
+        assertNotNull(postResponse.body())
 
-        val receivedId = UUID.fromString(response.bodyAsText())
+        val receivedId = UUID.fromString(postResponse.bodyAsText())
 
         val getResponse = client.get("/projects/$receivedId")
         val project : Project = getResponse.body()
@@ -47,5 +47,69 @@ class ApplicationTest {
         assertEquals(HttpStatusCode.OK, getResponse.status)
         assertEquals("TestProject", project.name)
         assertEquals("NotSketch", project.rating)
+    }
+
+    @Test
+    fun createProject_ThenUpdateProject_ProjectShouldBeUpdated() = testApplication {
+        createEnvironment()
+
+        val client = createClient() {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+
+        val postResponse = client.post("/projects") {
+            contentType(ContentType.Application.Json)
+            setBody(Project("TestProject", "NotSketch"))
+        }
+
+        assertEquals(HttpStatusCode.Created, postResponse.status)
+        assertNotNull(postResponse.body())
+
+        val receivedId = UUID.fromString(postResponse.bodyAsText())
+
+        val putResponse = client.put("/projects/$receivedId") {
+            contentType(ContentType.Application.Json)
+            setBody(Project("NewNameForTestProject", "ActuallySketch"))
+        }
+
+        assertEquals(HttpStatusCode.OK, putResponse.status)
+
+        val getResponse = client.get("/projects/$receivedId")
+        val project : Project = getResponse.body()
+
+        assertEquals(HttpStatusCode.OK, getResponse.status)
+        assertEquals("NewNameForTestProject", project.name)
+        assertEquals("ActuallySketch", project.rating)
+    }
+
+    @Test
+    fun createProject_ThenDeleteProject_ShouldNotGetProject() = testApplication {
+        createEnvironment()
+
+        val client = createClient() {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+
+        val postResponse = client.post("/projects") {
+            contentType(ContentType.Application.Json)
+            setBody(Project("TestProject", "NotSketch"))
+        }
+
+        assertEquals(HttpStatusCode.Created, postResponse.status)
+        assertNotNull(postResponse.body())
+
+        val receivedId = UUID.fromString(postResponse.bodyAsText())
+
+        val deleteResponse = client.delete("/projects/$receivedId")
+
+        assertEquals(HttpStatusCode.OK, deleteResponse.status)
+
+        val getResponse = client.get("/projects/$receivedId")
+
+        assertEquals(HttpStatusCode.NotFound, getResponse.status)
     }
 }
