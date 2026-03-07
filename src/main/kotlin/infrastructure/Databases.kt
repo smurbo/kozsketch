@@ -12,9 +12,9 @@ import java.util.UUID
 
 fun Application.configureDatabases() {
     val database = Database.connect(
-        url = "jdbc:sqlite:data/appdb.sqlite",
+        url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
         user = "root",
-        driver = "org.sqlite.JDBC",
+        driver = "org.h2.Driver",
         password = "",
     )
     val dbConnection: Connection = connectToPostgres(embedded = true)
@@ -117,7 +117,7 @@ fun Application.connectToPostgres(embedded: Boolean): Connection {
     Class.forName("org.postgresql.Driver")
     if (embedded) {
         log.info("Using embedded Sqlite database for testing; replace this flag to use postgres")
-        return DriverManager.getConnection("jdbc:sqlite:data/appdb.sqlite", "root", "")
+        return DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "root", "")
     } else {
         val url = environment.config.property("postgres.url").getString()
         log.info("Connecting to postgres database at $url")
