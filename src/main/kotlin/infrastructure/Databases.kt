@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import java.sql.Connection
 import java.sql.DriverManager
 import org.jetbrains.exposed.sql.*
+import java.util.UUID
 
 fun Application.configureDatabases() {
     val database = Database.connect(
@@ -17,43 +18,7 @@ fun Application.configureDatabases() {
         password = "",
     )
     val dbConnection: Connection = connectToPostgres(embedded = true)
-    val cityService = CityService(dbConnection)
 
-    routing {
-
-        // Create city
-        post("/cities") {
-            val city = call.receive<City>()
-            val id = cityService.create(city)
-            call.respond(HttpStatusCode.Created, id)
-        }
-
-        // Read city
-        get("/cities/{id}") {
-            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-            try {
-                val city = cityService.read(id)
-                call.respond(HttpStatusCode.OK, city)
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.NotFound)
-            }
-        }
-
-        // Update city
-        put("/cities/{id}") {
-            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-            val user = call.receive<City>()
-            cityService.update(id, user)
-            call.respond(HttpStatusCode.OK)
-        }
-
-        // Delete city
-        delete("/cities/{id}") {
-            val id = call.parameters["id"]?.toInt() ?: throw IllegalArgumentException("Invalid ID")
-            cityService.delete(id)
-            call.respond(HttpStatusCode.OK)
-        }
-    }
     val userService = UserService(database)
     routing {
         // Create user
@@ -89,6 +54,42 @@ fun Application.configureDatabases() {
             call.respond(HttpStatusCode.OK)
         }
     }
+
+    val projectService = ProjectService(database)
+    routing {
+        // Create project
+        post("/projects") {
+            val project = call.receive<Project>()
+            val id = projectService.create(project)
+            call.respond(HttpStatusCode.Created, id.toString())
+        }
+
+        // Read project
+        get("/projects/{id}") {
+            val id = call.parameters["id"] ?: throw IllegalArgumentException("Invalid ID")
+            val project = projectService.read(UUID.fromString(id))
+            if (project != null) {
+                call.respond(HttpStatusCode.OK, project)
+            } else {
+                call.respond(HttpStatusCode.NotFound)
+            }
+        }
+
+        // Update project
+        put("/projects/{id}") {
+            val id = call.parameters["id"] ?: throw IllegalArgumentException("Invalid ID")
+            val project = call.receive<Project>()
+            projectService.update(UUID.fromString(id), project)
+            call.respond(HttpStatusCode.OK)
+        }
+
+        // Delete project
+        delete("/projects/{id}") {
+            val id = call.parameters["id"] ?: throw IllegalArgumentException("Invalid ID")
+            projectService.delete(UUID.fromString(id))
+            call.respond(HttpStatusCode.OK)
+        }
+    }
 }
 
 /**
@@ -115,7 +116,7 @@ fun Application.configureDatabases() {
 fun Application.connectToPostgres(embedded: Boolean): Connection {
     Class.forName("org.postgresql.Driver")
     if (embedded) {
-        log.info("Using embedded H2 database for testing; replace this flag to use postgres")
+        log.info("Using embedded Sqlite database for testing; replace this flag to use postgres")
         return DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "root", "")
     } else {
         val url = environment.config.property("postgres.url").getString()
