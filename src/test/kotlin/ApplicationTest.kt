@@ -1,48 +1,51 @@
 package com
 
 import com.infrastructure.Project
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.call.body
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.*
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class ApplicationTest {
 
-    @Test
-    fun testRoot() = testApplication {
+    fun ApplicationTestBuilder.createEnvironment() {
         application {
             module()
-        }
-        client.get("/").apply {
-            assertEquals(HttpStatusCode.OK, status)
-            assertEquals("Hello World!", body())
         }
     }
 
     @Test
-    fun createProject_ShouldCreateProject() = testApplication {
-        application {
-            module()
+    fun shouldCreateProject_ThenShouldGetProject() = testApplication {
+        createEnvironment()
+
+        val client = createClient() {
+            install(ContentNegotiation) {
+                json()
+            }
         }
 
-        var receivedId = String
-
-        client.post("/projects") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
-            header(HttpHeaders.ContentDisposition, "charset=utf-8")
-            setBody(Project("test", "not sketch"))
-        }.apply {
-            assertEquals(HttpStatusCode.Created, status)
-            assertNotNull(body());
-            receivedId = body()
+        val response = client.post("/projects") {
+            contentType(ContentType.Application.Json)
+            setBody(Project("TestProject", "NotSketch"))
         }
-//
-//        client.get("/projects/$receivedId").apply {
-//            assertEquals(HttpStatusCode.OK, status)
-//            assertNotNull(body());
-//        }
+
+        assertEquals(HttpStatusCode.Created, response.status)
+        assertNotNull(response.body())
+
+        val receivedId = UUID.fromString(response.bodyAsText())
+
+        val getResponse = client.get("/projects/$receivedId")
+        val project : Project = getResponse.body()
+
+        assertEquals(HttpStatusCode.OK, getResponse.status)
+        assertEquals("TestProject", project.name)
+        assertEquals("NotSketch", project.rating)
     }
 }
