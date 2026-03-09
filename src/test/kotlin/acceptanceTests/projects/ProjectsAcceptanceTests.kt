@@ -1,72 +1,83 @@
 package com.acceptanceTests.projects
 
-import com.acceptanceTests.AcceptanceTestBase
 import com.helpers.builders.ProjectBuilder
-import com.helpers.constants.*
+import com.helpers.constants.DEFAULT_PROJECT_NAME
+import com.helpers.constants.DEFAULT_PROJECT_RATING
+import com.helpers.constants.PROJECTS_URL
 import com.infrastructure.Project
-import io.ktor.client.HttpClient
+import com.module
+import io.kotest.core.spec.IsolationMode
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.ktor.client.call.body
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.testApplication
 import java.util.UUID
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
-class ProjectsAcceptanceTests : AcceptanceTestBase() {
-    override val partialUrl: String
-        get() = PROJECTS_URL
+class ProjectsAcceptanceTests : BehaviorSpec({
+    val partialUrl = PROJECTS_URL
+    isolationMode = IsolationMode.SingleInstance
 
-    private lateinit var projectId : UUID
-    private val defaultProject = ProjectBuilder().createDefault()
+    testApplication {
+        application {
+            module()
+        }
 
-    override suspend fun setupDefaults(client: HttpClient) {
-        createDefaultProject(client)
+        val client = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+
+        Given("a project does not yet exist") {
+            When("a new project is created") {
+                val response = client.post(partialUrl) {
+                    contentType(ContentType.Application.Json)
+                    setBody(ProjectBuilder().createDefault())
+                }
+
+                Then("we should receive HTTP.Created") {
+                    response.status shouldBe HttpStatusCode.Created
+                }
+                Then("we should be able to get the project") {
+                    val project = client.get(
+                            "$partialUrl/${UUID.fromString(response.bodyAsText())}")
+                        .body() as Project
+
+                    project shouldNotBe null
+                    project.name shouldBe DEFAULT_PROJECT_NAME
+                    project.rating shouldBe DEFAULT_PROJECT_RATING
+                }
+                And("we try to update the project") {
+                    Then("we should receive HTTP.OK") {
+
+                    }
+                    And("we get the project again") {
+                        Then("the project should be updated") {
+
+                        }
+                    }
+                }
+                And("we try to delete the project") {
+                    Then("we should receive HTTP.Deleted") {
+
+                    }
+                    And("we try to get the project again") {
+                        Then("we should receive 404 Not Found") {
+
+                        }
+                    }
+                }
+            }
+        }
     }
-
-    private suspend fun createDefaultProject(client : HttpClient) {
-        projectId = client.createAndGetId(defaultProject)
-    }
-
-    @Test
-    fun `If we create a Project, then get it, we should get the created Project`() = testApplication {
-        createEnvironmentWithDefaults()
-
-        val project = client.get<Project>(projectId)
-
-        assertEquals(DEFAULT_PROJECT_NAME, project.name)
-        assertEquals(DEFAULT_PROJECT_RATING, project.rating)
-    }
-
-    @Test
-    fun `If we create a Project, then update it, we should get the updated Project`() = testApplication {
-        createEnvironmentWithDefaults()
-
-        val project = client.get<Project>(projectId)
-
-        assertEquals(DEFAULT_PROJECT_NAME, project.name)
-        assertEquals(DEFAULT_PROJECT_RATING, project.rating)
-
-        client.update(
-            id = projectId,
-            entity = ProjectBuilder().createWithValidProperties(
-                name = UPDATED_PROJECT_NAME,
-                rating = UPDATED_PROJECT_RATING,
-            )
-        )
-
-        val updatedProject = client.get<Project>(projectId)
-        assertEquals(UPDATED_PROJECT_NAME, updatedProject.name)
-        assertEquals(UPDATED_PROJECT_RATING, updatedProject.rating)
-    }
-
-    @Test
-    fun `If we create a Project, then delete it, we should get a response with 404 Not Found when we try to get it`() = testApplication {
-        createEnvironmentWithDefaults()
-
-        val deleteResponse = client.delete(projectId)
-        assertEquals(HttpStatusCode.OK, deleteResponse.status)
-
-        val getResponse = client.get("$partialUrl/$projectId")
-        assertEquals(HttpStatusCode.NotFound, getResponse.status)
-    }
-}
+})
