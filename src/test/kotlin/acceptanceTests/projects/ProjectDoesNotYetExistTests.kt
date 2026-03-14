@@ -1,6 +1,6 @@
 package com.acceptanceTests.projects
 
-import com.helpers.builders.ProjectBuilder
+import com.helpers.builders.ProjectModelBuilder
 import com.helpers.constants.DEFAULT_PROJECT_NAME
 import com.helpers.constants.DEFAULT_PROJECT_RATING
 import com.helpers.constants.PROJECTS_URL
@@ -10,7 +10,7 @@ import com.helpers.extensions.delete
 import com.helpers.extensions.getById
 import com.helpers.extensions.runAT
 import com.helpers.extensions.update
-import com.infrastructure.Project
+import com.models.ProjectModel
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -31,7 +31,7 @@ class ProjectDoesNotYetExistTests : BehaviorSpec({
                     createResponse.status shouldBe HttpStatusCode.Created
                 }
                 Then("we should be able to get the project") {
-                    val project = client.getById<Project>(
+                    val project = client.getById<ProjectModel>(
                         PROJECTS_URL,
                         projectId
                     )
@@ -44,7 +44,7 @@ class ProjectDoesNotYetExistTests : BehaviorSpec({
                     val updateResponse = client.update(
                         PROJECTS_URL,
                         projectId,
-                        ProjectBuilder().createWithValidProperties(
+                        ProjectModelBuilder().createWithValidProperties(
                             UPDATED_PROJECT_NAME,
                             UPDATED_PROJECT_RATING
                         )
@@ -57,7 +57,7 @@ class ProjectDoesNotYetExistTests : BehaviorSpec({
                         val updatedProject = client.get(
                             "${PROJECTS_URL}/$projectId"
                         )
-                            .body() as Project
+                            .body() as ProjectModel
 
                         Then("the project should be updated") {
                             updatedProject shouldNotBe null

@@ -1,3 +1,3 @@
 package com.helpers.constants
 
-const val PROJECTS_URL = "/projects"
+const val PROJECTS_URL = "/api/projects"
