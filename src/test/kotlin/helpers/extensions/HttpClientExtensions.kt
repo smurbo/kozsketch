@@ -1,5 +1,6 @@
 package com.helpers.extensions
 
+import com.helpers.utils.apiRoute
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -16,7 +17,7 @@ suspend inline fun <reified T> HttpClient.create(
     partialUrl: String,
     body: T
 ) : HttpResponse {
-    return post(partialUrl) {
+    return post(apiRoute(partialUrl)) {
         contentType(ContentType.Application.Json)
         setBody(body)
     }
@@ -26,7 +27,7 @@ suspend inline fun <reified T> HttpClient.getById(
     partialUrl: String,
     id: UUID
 ) : T {
-    return get("$partialUrl/$id").body<T>()
+    return get("${apiRoute(partialUrl)}/$id").body<T>()
 }
 
 suspend inline fun <reified T> HttpClient.update(
@@ -34,7 +35,7 @@ suspend inline fun <reified T> HttpClient.update(
     id: UUID,
     body: T
 ) : HttpResponse {
-    return put("$partialUrl/$id") {
+    return put("${apiRoute(partialUrl)}/$id") {
         contentType(ContentType.Application.Json)
         setBody(body)
     }
@@ -44,5 +45,5 @@ suspend fun HttpClient.delete(
     partialUrl: String,
     id: UUID
 ) : HttpResponse {
-    return delete("$partialUrl/$id")
+    return delete("${apiRoute(partialUrl)}/$id")
 }
