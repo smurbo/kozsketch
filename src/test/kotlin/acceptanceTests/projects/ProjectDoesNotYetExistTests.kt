@@ -3,18 +3,18 @@ package com.acceptanceTests.projects
 import com.helpers.builders.ProjectModelBuilder
 import com.helpers.constants.DEFAULT_PROJECT_NAME
 import com.helpers.constants.DEFAULT_PROJECT_RATING
-import com.helpers.constants.PROJECTS_URL
+import com.routes.PROJECTS_URL
 import com.helpers.constants.UPDATED_PROJECT_NAME
 import com.helpers.constants.UPDATED_PROJECT_RATING
 import com.helpers.extensions.delete
 import com.helpers.extensions.getById
 import com.helpers.extensions.runAT
 import com.helpers.extensions.update
+import com.helpers.utils.apiRoute
 import com.models.ProjectModel
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
@@ -54,10 +54,10 @@ class ProjectDoesNotYetExistTests : BehaviorSpec({
                         updateResponse.status shouldBe HttpStatusCode.OK
                     }
                     And("we get the project again") {
-                        val updatedProject = client.get(
-                            "${PROJECTS_URL}/$projectId"
+                        val updatedProject = client.getById<ProjectModel>(
+                            PROJECTS_URL,
+                            projectId
                         )
-                            .body() as ProjectModel
 
                         Then("the project should be updated") {
                             updatedProject shouldNotBe null
@@ -67,13 +67,16 @@ class ProjectDoesNotYetExistTests : BehaviorSpec({
                     }
                 }
                 And("we try to delete the project") {
-                    val deleteResponse = client.delete(PROJECTS_URL, projectId)
+                    val deleteResponse = client.delete(
+                        PROJECTS_URL,
+                        projectId)
 
                     Then("we should receive HTTP.OK") {
                         deleteResponse.status shouldBe HttpStatusCode.OK
                     }
                     And("we try to get the project again") {
-                        val getResponse = client.get("${PROJECTS_URL}/$projectId")
+                        val getResponse = client.get(
+                            "${apiRoute(PROJECTS_URL)}/$projectId")
 
                         Then("we should receive 404 Not Found") {
                             getResponse.status shouldBe HttpStatusCode.NotFound
