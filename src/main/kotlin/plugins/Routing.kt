@@ -1,7 +1,7 @@
 package com.plugins
 
 import com.models.ProjectModel
-import com.services.ProjectService
+import com.services.projects.ProjectService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.request.receive

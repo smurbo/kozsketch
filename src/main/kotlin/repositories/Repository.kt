@@ -1,66 +1,80 @@
 package com.repositories
 
-import com.data.Project
-import com.data.Projects
+import com.dataTransferring.mappings.ObjectMapper
 import com.infrastructure.DatabaseConnection
-import com.models.ProjectModel
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.dao.EntityClass
+import org.jetbrains.exposed.dao.UUIDEntity
+import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.statements.InsertStatement
+import org.jetbrains.exposed.sql.statements.UpdateStatement
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.util.UUID
 
-interface Repository<TEntity, TModel> {
+interface Repository<out TEntity: UUIDEntity, TModel> {
     suspend fun create(model: TModel) : UUID
-    suspend fun getById(id: UUID) : TEntity?
+    suspend fun getById(id: UUID) : TModel?
     suspend fun update(id: UUID, model: TModel)
     suspend fun delete(id: UUID)
 }
 
-abstract class RepositoryImpl<TEntity, TModel>(
-    protected val db : DatabaseConnection
-) : Repository<TEntity, TModel> {
+abstract class RepositoryImpl<TEntity: UUIDEntity, TModel>(
+    protected val db : DatabaseConnection,
+    protected val mainTable : UUIDTable,
+    protected val entityClass : EntityClass<UUID, TEntity>
+) : Repository<TEntity, TModel>, KoinComponent {
     init {
         transaction(db.database) {
-            SchemaUtils.create(Projects)
+            SchemaUtils.create(mainTable)
         }
     }
 
-    //create
+    private val mapper: ObjectMapper<TEntity, TModel> by inject()
 
-    //really dangerous lmao dw about it
-    override suspend fun getById(id: UUID): TEntity? = dbQuery {
-        Project.findById(id) as TEntity?
+    override suspend fun create(model: TModel): UUID = dbQuery {
+        mainTable.insert {
+            insertModel(it, model)
+        }[mainTable.id].value
     }
+
+    abstract fun insertModel(it: InsertStatement<Number>, model: TModel)
+
+    override suspend fun getById(id: UUID): TModel? {
+        val entity = dbQuery {
+            entityClass.findById(id)
+        }
+        return entity?.let { mapper.map(it) }
+    }
+
+    override suspend fun update(
+        id: UUID,
+        model: TModel
+    ) {
+        dbQuery {
+            mainTable.update({ mainTable.id eq id }) {
+                updateModel(it, model)
+            }
+        }
+    }
+
+    abstract fun updateModel(
+        it: UpdateStatement,
+        model: TModel)
 
     override suspend fun delete(id: UUID) {
         dbQuery {
-            Projects.deleteWhere { Projects.id.eq(Projects.id) }
+            mainTable.deleteWhere { mainTable.id.eq(mainTable.id) }
         }
     }
 
     protected suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO, db.database) { block() }
-}
-
-class ProjectRepository(db : DatabaseConnection) : RepositoryImpl<Project, ProjectModel>(db) {
-    override suspend fun create(model: ProjectModel): UUID = dbQuery {
-        Projects.insert {
-            it[name] = model.name
-            it[rating] = model.rating
-        }[Projects.id].value
-    }
-
-    override suspend fun update(id: UUID, model: ProjectModel) {
-        dbQuery {
-            Projects.update({ Projects.id eq id }) {
-                it[name] = model.name
-                it[rating] = model.rating
-            }
-        }
-    }
 }

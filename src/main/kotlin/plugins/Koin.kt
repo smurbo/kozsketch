@@ -1,5 +1,6 @@
 package com.plugins
 
+import com.dataTransferring.mappings.di.mappingModule
 import com.infrastructure.di.databaseModule
 import com.repositories.di.repositoryModule
 import com.services.di.serviceModule
@@ -16,6 +17,7 @@ fun Application.configureKoin() {
         slf4jLogger()
         modules(
             databaseModule(environment),
+            mappingModule,
             repositoryModule,
             serviceModule)
     }

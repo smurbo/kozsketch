@@ -2,8 +2,8 @@ package com.repositories.di
 
 import com.data.Project
 import com.models.ProjectModel
-import com.repositories.ProjectRepository
 import com.repositories.Repository
+import com.repositories.projects.ProjectRepository
 import org.koin.dsl.module
 
 val repositoryModule = module {
