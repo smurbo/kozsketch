@@ -2,20 +2,23 @@ package com.helpers.builders
 
 import com.helpers.constants.DEFAULT_PROJECT_NAME
 import com.helpers.constants.DEFAULT_PROJECT_RATING
-import com.infrastructure.Project
+import com.models.ProjectModel
 
-class ProjectBuilder {
-    fun createDefault() : Project {
+class ProjectModelBuilder {
+    fun createDefault() : ProjectModel {
         return createWithValidProperties()
     }
 
     fun createWithValidProperties(
         name : String? = null,
         rating : String? = null
-    ) : Project {
+    ) : ProjectModel {
         val name = if (name.isNullOrBlank()) DEFAULT_PROJECT_NAME else name
         val rating = if (rating.isNullOrBlank()) DEFAULT_PROJECT_RATING else rating
 
-        return Project(name, rating)
+        return ProjectModel(
+            id = null,
+            name,
+            rating)
     }
 }

@@ -33,6 +33,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
     implementation("com.h2database:h2:$h2_version")
     implementation("io.ktor:ktor-server-call-logging")
     implementation("org.postgresql:postgresql:$postgres_version")
@@ -41,6 +42,8 @@ dependencies {
     implementation("io.ktor:ktor-server-netty")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-server-config-yaml")
+    implementation("io.insert-koin:koin-ktor:4.1.2-Beta1")
+    implementation("io.insert-koin:koin-logger-slf4j:4.1.2-Beta1")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("io.kotest:kotest-runner-junit5:$kotest_version")
 }
