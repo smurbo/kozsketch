@@ -1,8 +1,8 @@
 package com.repositories.projects
 
-import com.data.Project
-import com.data.Projects
-import com.infrastructure.DatabaseConnection
+import com.data.schemas.Project
+import com.data.schemas.Projects
+import com.data.DatabaseConnection
 import com.models.ProjectModel
 import com.repositories.RepositoryImpl
 import org.jetbrains.exposed.sql.statements.InsertStatement

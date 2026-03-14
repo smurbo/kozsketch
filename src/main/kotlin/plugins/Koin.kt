@@ -1,7 +1,7 @@
 package com.plugins
 
-import com.dataTransferring.mappings.di.mappingModule
-import com.infrastructure.di.databaseModule
+import com.mappings.di.mappingModule
+import com.data.di.databaseModule
 import com.repositories.di.repositoryModule
 import com.services.di.serviceModule
 import io.ktor.server.application.Application

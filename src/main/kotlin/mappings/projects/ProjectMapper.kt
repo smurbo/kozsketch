@@ -1,7 +1,7 @@
-package com.dataTransferring.mappings.projects
+package com.mappings.projects
 
-import com.data.Project
-import com.dataTransferring.mappings.ObjectMapper
+import com.data.schemas.Project
+import com.mappings.ObjectMapper
 import com.models.ProjectModel
 
 class ProjectMapper : ObjectMapper<Project, ProjectModel> {

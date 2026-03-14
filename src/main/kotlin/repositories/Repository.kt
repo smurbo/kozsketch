@@ -1,7 +1,7 @@
 package com.repositories
 
-import com.dataTransferring.mappings.ObjectMapper
-import com.infrastructure.DatabaseConnection
+import com.mappings.ObjectMapper
+import com.data.DatabaseConnection
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.UUIDEntity

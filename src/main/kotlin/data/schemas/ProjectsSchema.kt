@@ -1,4 +1,4 @@
-package com.data
+package com.data.schemas
 
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass

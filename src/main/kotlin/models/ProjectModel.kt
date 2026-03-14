@@ -1,6 +1,6 @@
 package com.models
 
-import com.dataTransferring.serializers.NullableUUIDSerializer
+import com.models.serializers.NullableUUIDSerializer
 import kotlinx.serialization.Serializable
 import java.util.UUID
 

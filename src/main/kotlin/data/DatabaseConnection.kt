@@ -1,4 +1,4 @@
-package com.infrastructure
+package com.data
 
 import io.ktor.server.application.ApplicationEnvironment
 import org.jetbrains.exposed.sql.Database

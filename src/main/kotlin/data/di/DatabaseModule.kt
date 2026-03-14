@@ -1,7 +1,7 @@
-package com.infrastructure.di
+package com.data.di
 
-import com.infrastructure.DatabaseConnection
-import com.infrastructure.DatabaseConnectionImpl
+import com.data.DatabaseConnection
+import com.data.DatabaseConnectionImpl
 import io.ktor.server.application.ApplicationEnvironment
 import org.koin.dsl.module
 

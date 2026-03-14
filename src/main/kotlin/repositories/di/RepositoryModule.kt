@@ -1,6 +1,6 @@
 package com.repositories.di
 
-import com.data.Project
+import com.data.schemas.Project
 import com.models.ProjectModel
 import com.repositories.Repository
 import com.repositories.projects.ProjectRepository

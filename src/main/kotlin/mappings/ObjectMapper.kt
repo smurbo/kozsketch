@@ -1,4 +1,4 @@
-package com.dataTransferring.mappings
+package com.mappings
 
 interface ObjectMapper<TSource, TTarget> {
     fun map(source: TSource): TTarget

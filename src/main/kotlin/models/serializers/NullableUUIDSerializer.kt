@@ -1,4 +1,4 @@
-package com.dataTransferring.serializers
+package com.models.serializers
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
